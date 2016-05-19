@@ -13,7 +13,7 @@ void loop() {
   digitalWrite(temp_on,HIGH);
   delay(104);
   digitalWrite(temp_on,LOW);
-  temp_count=((((float)temp_count/4096)*256)-50);
+  //temp_count=((((float)temp_count/4096)*256)-50);Umrechnung in Grad
   Serial.print(temp_count);
   temp_count=0;
   delay(100);
