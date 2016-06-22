@@ -3,10 +3,8 @@
 #include "visualheart.h"
 #include <Filters.h>
 
-int bPin = 3;
-int rPin = 5;
-int gPin = 6;
-int heartPin = 0;
+#define HEARTPIN 0
+
 int tOffset = millis();
 int t = 0;
 
@@ -15,15 +13,19 @@ FilterOnePole lowpassFilter(LOWPASS, filterFrequency);
 
 void setup() {
   Serial.begin(9600);
-  pinMode(heartPin, INPUT);
-  pinMode(rPin, OUTPUT);
-  pinMode(bPin, OUTPUT);
+  pinMode(HEARTPIN, INPUT);
+  pinMode(RPIN, OUTPUT);
+  pinMode(GPIN, OUTPUT);
+  pinMode(BPIN, OUTPUT);
+  setFrequency(1);
+  setTemperatur(255);
 }
 
 void loop() {
   t = millis() - tOffset;
   if(t % 10 == 0){
-    int input = analogRead(heartPin);
+    step();
+    int input = analogRead(HEARTPIN);
     lowpassFilter.input(input);
   }
   if(t % 100 == 0){
