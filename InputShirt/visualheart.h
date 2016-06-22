@@ -1,0 +1,4 @@
+#ifndef VISUALHEART_H
+#define VISUALHEART_H
+
+#endif /*VISUALHEART_H */

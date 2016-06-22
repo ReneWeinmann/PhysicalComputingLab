@@ -29,7 +29,7 @@ void loop() {
   if(t % 100 == 0){
     float output = lowpassFilter.output();
     addMeasure(output);
-    if(measurementCount >= FFT_N){
+    if(countMeasurements >= FFT_N){
       transform();
     }
   }
