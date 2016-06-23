@@ -8,7 +8,7 @@
 int tOffset = millis();
 int t = 0;
 
-float filterFrequency = 5.0;
+float filterFrequency = 3.0;
 FilterOnePole lowpassFilter(LOWPASS, filterFrequency);
 
 void setup() {
@@ -18,7 +18,7 @@ void setup() {
   pinMode(GPIN, OUTPUT);
   pinMode(BPIN, OUTPUT);
   setFrequency(1);
-  setTemperatur(255);
+  setTemperatur(0);
 }
 
 void loop() {
@@ -29,12 +29,11 @@ void loop() {
     lowpassFilter.input(input);
   }
   if(t % 100 == 0){
-    float output = lowpassFilter.output();
+    int output = round(lowpassFilter.output());
     addMeasure(output);
-    if(countMeasurements >= FFT_N){
-      transform();
-    }
+  }
+  if(t % 1000 == 0 && countMeasurements >= FFT_N){
+      float heartrate = getHeartFrequency();
+      setFrequency(heartrate);
   }
 }
-
-
