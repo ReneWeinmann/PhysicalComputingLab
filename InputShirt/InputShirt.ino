@@ -8,6 +8,7 @@
 #define TEMPONOFF 7
 #define MIN_TEMP 28
 #define MAX_TEMP 35
+#define FREQ_SCALE 0.5
 
 int tOffset = millis();
 unsigned long t = 0;
@@ -16,7 +17,9 @@ unsigned long startTempMeasure = 0;
 bool measureTemp = false;
 
 float filterFrequency = 3.0;
+float smoothFrequency = 0.01;
 FilterOnePole lowpassFilter(LOWPASS, filterFrequency);
+FilterOnePole smoothFilter(LOWPASS, smoothFrequency);
 
 
 void tempSensor(bool on){
@@ -56,7 +59,9 @@ void loop() {
   }
   if(t % 1000 == 0 && countMeasurements >= FFT_N){
       float heartrate = getHeartFrequency();
-      setFrequency(heartrate);
+      smoothFilter.input(heartrate);
+      Serial.println(smoothFilter.output()*60);
+      setFrequency(smoothFilter.output() * FREQ_SCALE);
   }
   if(t % 1000 == 0){
     tempSensor(true);
@@ -67,8 +72,6 @@ void loop() {
     tempSensor(false);
     float temp = (tempTrigger / (float)4096) * 256 - 50;
     float colorTemp = min(255, max(0, (temp - MIN_TEMP) / (MAX_TEMP - MIN_TEMP) * 255));
-    Serial.println(temp);
-    Serial.println(colorTemp);
     setTemperatur(colorTemp);
     tempTrigger = 0;
   }
