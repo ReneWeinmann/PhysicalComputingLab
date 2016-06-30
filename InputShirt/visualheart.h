@@ -1,9 +1,9 @@
 #ifndef VISUALHEART_H
 #define VISUALHEART_H
 
-#define RPIN 5
+#define RPIN 10
 #define GPIN 6
-#define BPIN 3
+#define BPIN 9
 #define REPEAT_TIME_PER_SECOND 100
 
 int maxR = 0;
