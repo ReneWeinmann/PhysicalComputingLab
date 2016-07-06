@@ -1,6 +1,7 @@
 
 #include "heartrate.h"
 #include "visualheart.h"
+#include <SoftwareSerial.h> 
 #include <Filters.h>
 
 #define HEARTPIN 7
@@ -9,6 +10,10 @@
 #define MIN_TEMP 28
 #define MAX_TEMP 35
 #define FREQ_SCALE 0.5
+#define BLUETOOTH_TX 4
+#define BLUETOOTH_RX  3
+
+SoftwareSerial bluetooth(BLUETOOTH_TX, BLUETOOTH_RX);
 
 int tOffset = millis();
 unsigned long t = 0;
@@ -34,6 +39,19 @@ void tempSensor(bool on){
 
 void setup() {
   Serial.begin(9600);
+  //setup bluetooth
+  bluetooth.begin(115200);  // The Bluetooth Mate defaults to 115200bps
+  bluetooth.print("$");  // Print three times individually
+  bluetooth.print("$");
+  bluetooth.print("$");  // Enter command mode
+  delay(100);  // Short delay, wait for the Mate to send back CMD
+  bluetooth.println("C,00066663A042");
+  delay(1000);
+  bluetooth.println("U,9600,N");  // Temporarily Change the baudrate to 9600, no parity
+  delay(100); 
+  // 115200 can be too fast at times for NewSoftSerial to relay the data reliably
+  bluetooth.begin(9600);  // Start bluetooth serial at 9600
+  
   pinMode(HEARTPIN, INPUT);
   pinMode(RPIN, OUTPUT);
   pinMode(GPIN, OUTPUT);
@@ -60,13 +78,23 @@ void loop() {
   if(t % 1000 == 0 && countMeasurements >= FFT_N){
       float heartrate = getHeartFrequency();
       smoothFilter.input(heartrate);
-      Serial.println(smoothFilter.output()*60);
+      //Serial.println(smoothFilter.output()*60);
       setFrequency(smoothFilter.output() * FREQ_SCALE);
   }
+  
   if(t % 1000 == 0){
+    //trigger temperatur measurement
     tempSensor(true);
     startTempMeasure = millis();
+    // send heartrate via bluetooth
   }
+
+    if(t % 5000 == 0){
+          // send heartrate via bluetooth
+    //bluetooth.write((unsigned int)(frequency*100));
+    bluetooth.write((int)(smoothFilter.output()*60));
+    Serial.print((int)(smoothFilter.output()*60));
+    }
   
   if(millis() - startTempMeasure >= 104 && measureTemp){
     tempSensor(false);
@@ -75,6 +103,7 @@ void loop() {
     setTemperatur(colorTemp);
     tempTrigger = 0;
   }
+
 }
 
 void countTrigger(){
