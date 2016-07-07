@@ -92,18 +92,13 @@ void loop() {
     if(t % 5000 == 0){
           // send heartrate via bluetooth
     //bluetooth.write((unsigned int)(frequency*100));
-    //bluetooth.write((int)(smoothFilter.output()*60));
+    bluetooth.write((int)(smoothFilter.output()*60));
     //Serial.print((int)(smoothFilter.output()*60));
     }
   
   if(millis() - startTempMeasure >= 104 && measureTemp){
     tempSensor(false);
     float temp = (tempTrigger / (float)4096) * 256 - 50;
-    int a = (int)(temp*100) >> 8;
-    int b = ((int)(temp*100) << 8) >> 8;
-    bluetooth.write(a);
-    bluetooth.write(b);
-    Serial.println((int)(temp * 100));
     float colorTemp = min(255, max(0, (temp - MIN_TEMP) / (MAX_TEMP - MIN_TEMP) * 255));
     setTemperatur(colorTemp);
     tempTrigger = 0;
